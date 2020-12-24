@@ -1,11 +1,11 @@
 import React from "react";
 
-const Song = () => {
+const Song = ({ current }) => {
   return (
     <div className="song__container">
-      <h1>PICTURE</h1>
-      <h1>Song name</h1>
-      <h1>Artist</h1>
+      <img src={current.cover} alt="cover" />
+      <h2>{current.name}</h2>
+      <h3>{current.artist}</h3>
     </div>
   );
 };
