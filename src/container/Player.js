@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -6,7 +6,6 @@ import {
   faAngleRight,
   faPause,
 } from "@fortawesome/free-solid-svg-icons";
-import { playAudio } from "../feature";
 
 const Player = ({
   current,
@@ -36,23 +35,30 @@ const Player = ({
     audioRef.current.currentTime = e.target.value;
     setSongInfo({ ...songInfo, currentTime: e.target.value });
   };
-  const skipTrackHandler = (direction) => {
+  const skipTrackHandler = async (direction) => {
     let currentIndex = songs.findIndex((song) => song.id === current.id);
     if (direction === "skip-front") {
-      setCurrentSong(songs[(currentIndex + 1) % songs.length]);
+      activeLibraryHandler(songs[(currentIndex + 1) % songs.length]);
+      await setCurrentSong(songs[(currentIndex + 1) % songs.length]);
     } else {
       if ((currentIndex - 1) % songs.length === -1) {
-        setCurrentSong(songs[songs.length - 1]);
+        await setCurrentSong(songs[songs.length - 1]);
+        activeLibraryHandler(songs[songs.length - 1]);
       } else {
-        setCurrentSong(songs[(currentIndex - 1) % songs.length]);
+        await setCurrentSong(songs[(currentIndex - 1) % songs.length]);
+        activeLibraryHandler(songs[(currentIndex - 1) % songs.length]);
       }
     }
-    playAudio(isPlaying, audioRef);
+    if (isPlaying) audioRef.current.play();
   };
 
-  useEffect(() => {
+  const trackAnum = {
+    transform: `translateX(${songInfo.animationPercentage}%)`,
+  };
+
+  const activeLibraryHandler = (nextPrev) => {
     const newSongs = songs.map((song) => {
-      if (song.id === current.id) {
+      if (song.id === nextPrev.id) {
         return {
           ...song,
           active: true,
@@ -65,10 +71,6 @@ const Player = ({
       }
     });
     setSongs(newSongs);
-  }, [current, current.id]);
-
-  const trackAnum = {
-    transform: `translateX(${songInfo.animationPercentage}%)`,
   };
 
   return (
